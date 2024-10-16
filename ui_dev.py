@@ -60,7 +60,7 @@ for index, champion in enumerate(champions_data.values()):
 
     if os.path.exists(image_path):
         image_data = Image.open(image_path)
-        image_data = image_data.resize((100, 100), Image.ANTIALIAS)  # Resize for uniformity
+        image_data = image_data.resize((75, 75), Image.ANTIALIAS)  # Resize for uniformity
         image = ImageTk.PhotoImage(image_data)
 
         # Create a button with the champion image
