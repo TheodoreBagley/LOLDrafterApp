@@ -54,10 +54,29 @@ else:
 
 for champ in champs_list:
     for enemy in champs_list:
-        new_url =  'https://lolalytics.com/lol/' + champ + '/vs/' + enemy + '/build/?tier=master_plus'
+        if enemy.lanes[0] == champ.lanes[0]:
+            new_url =  'https://www.counterstats.net/league-of-legends/' + champ.name + '/vs-' + enemy.name + '/' + champ.lanes[0] + '/all'
+        else:
+            continue
         #print(new_url)
-        data = response = requests.get(url)
-        soupy = BeautifulSoup(data.content, 'html.parser')
-        para = soupy.find('div', attrs={'q:key': 'yJ_1'})
-        #print(para)
+        response = requests.get(new_url)
+
+        if response.status_code == 200:
+            print(new_url)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            with open('output.txt', 'w', encoding='utf-8') as file:
+                file.write(new_url)
+
+            span_elements = soup.find_all('span', attrs={'data-perc': True})
+            print(span_elements)
+            if span_elements:
+                span_element = span_elements[6]
+            else:
+                continue
+            if span_element:
+                data_perc = span_element['data-perc']
+                print(data_perc)
+            else:
+
+                print("Element not found")
 
