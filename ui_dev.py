@@ -9,8 +9,7 @@ with open('champions_data.json', 'r') as f:
     champions_data = json.load(f)['data']
 
 champion_names = [champion['name'] for champion in champions_data.values()]
-champion_images = {}
-num_columns = 15  # Specify the number of columns for the layout
+num_columns = 10  # Specify the number of columns for the layout
 
 def show_champion_details(champion_name):
     champion_info = next((champion for champion in champions_data.values() if champion['name'] == champion_name), None)
@@ -23,7 +22,7 @@ def show_champion_details(champion_name):
         if os.path.exists(image_path):
             # Load image if it exists in cache
             image_data = Image.open(image_path)
-            image_data = image_data.resize((100, 100), Image.ANTIALIAS)  # Resize for better fit
+            image_data = image_data.resize((200, 200), Image.ANTIALIAS)  # Resize for better fit
             image = ImageTk.PhotoImage(image_data)
             image_label.config(image=image)
             image_label.image = image  # Keep a reference to avoid garbage collection
@@ -34,11 +33,25 @@ def show_champion_details(champion_name):
 # Create the main window
 root = tk.Tk()
 root.title("League of Legends Champion Selector")
-root.geometry("1000x800")  # Set the size of the window
+root.geometry("1450x800")  # Set the size of the window
 
-# Create a frame for the champion images
-frame = tk.Frame(root)
-frame.pack(pady=20)
+# Create a canvas and a scrollbar
+canvas = tk.Canvas(root)
+scrollbar = ttk.Scrollbar(root, orient="vertical", command=canvas.yview)
+scrollable_frame = tk.Frame(canvas)
+
+# Configure the canvas
+scrollable_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+)
+
+canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+canvas.configure(yscrollcommand=scrollbar.set)
+
+# Pack the canvas and scrollbar
+canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 # Load and display champion images
 for index, champion in enumerate(champions_data.values()):
@@ -51,7 +64,7 @@ for index, champion in enumerate(champions_data.values()):
         image = ImageTk.PhotoImage(image_data)
 
         # Create a button with the champion image
-        button = tk.Button(frame, image=image, command=lambda name=champion['name']: show_champion_details(name))
+        button = tk.Button(scrollable_frame, image=image, command=lambda name=champion['name']: show_champion_details(name))
         button.image = image  # Keep a reference
 
         # Calculate row and column for grid layout
