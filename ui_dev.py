@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import os
 import json
 
+# Load champion data from JSON file
 with open('champions_data.json', 'r') as f:
     champions_data = json.load(f)['data']
 
@@ -19,34 +20,37 @@ def show_champion_details(event):
         image_path = os.path.join('champion_images', image_filename)
         
         if os.path.exists(image_path):
-            # If image exists in cache, load it
+            # Load image if it exists in cache
             image_data = Image.open(image_path)
+            image_data = image_data.resize((200, 200), Image.ANTIALIAS)  # Resize for better fit
+            image = ImageTk.PhotoImage(image_data)
+            image_label.config(image=image)
+            image_label.image = image  # Keep a reference to avoid garbage collection
         else:
             print(f"Image not found in cache: {image_path}")
             return  # Exit if the image could not be found
 
-        # Update the image label
-        image = ImageTk.PhotoImage(image_data)
-        image_label.config(image=image)
-        image_label.image = image
-
-
 # Create the main window
 root = tk.Tk()
 root.title("League of Legends Champion Selector")
+root.geometry("600x600")  # Set the size of the window
+
+# Create a frame for better organization
+frame = tk.Frame(root)
+frame.pack(pady=20)
 
 # Create a dropdown menu
-champion_combo = ttk.Combobox(root, values=champion_names)
+champion_combo = ttk.Combobox(frame, values=champion_names, font=("Arial", 12), width=30)
 champion_combo.set("Select a Champion")  # Default text
 champion_combo.bind("<<ComboboxSelected>>", show_champion_details)
 champion_combo.pack(pady=10)
 
 # Create a label to show champion details
-details_label = tk.Label(root, text="", justify=tk.LEFT)
+details_label = tk.Label(frame, text="", justify=tk.LEFT, font=("Arial", 12))
 details_label.pack(pady=10)
 
 # Create an image label
-image_label = tk.Label(root)
+image_label = tk.Label(frame)
 image_label.pack(pady=10)
 
 # Run the application
