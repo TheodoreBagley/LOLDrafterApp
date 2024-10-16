@@ -4,6 +4,8 @@ import os
 from collections import defaultdict
 from PIL import Image
 
+# This file contains the code used to make the api calls to get the database
+
 
 # File path to store the champion data
 file_path = "champions_data.json"
