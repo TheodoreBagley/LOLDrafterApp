@@ -9,10 +9,11 @@ with open('champions_data.json', 'r') as f:
     champions_data = json.load(f)['data']
 
 champion_names = [champion['name'] for champion in champions_data.values()]
+champion_images = {}
+num_columns = 15  # Specify the number of columns for the layout
 
-def show_champion_details(event):
-    selected_champion = champion_combo.get()
-    champion_info = next((champion for champion in champions_data.values() if champion['name'] == selected_champion), None)
+def show_champion_details(champion_name):
+    champion_info = next((champion for champion in champions_data.values() if champion['name'] == champion_name), None)
     if champion_info:
         details_label.config(text=f"Name: {champion_info['name']}\nTags: {', '.join(champion_info['tags'])}\nTitle: {champion_info['title']}")
         
@@ -22,7 +23,7 @@ def show_champion_details(event):
         if os.path.exists(image_path):
             # Load image if it exists in cache
             image_data = Image.open(image_path)
-            image_data = image_data.resize((200, 200), Image.ANTIALIAS)  # Resize for better fit
+            image_data = image_data.resize((100, 100), Image.ANTIALIAS)  # Resize for better fit
             image = ImageTk.PhotoImage(image_data)
             image_label.config(image=image)
             image_label.image = image  # Keep a reference to avoid garbage collection
@@ -33,24 +34,37 @@ def show_champion_details(event):
 # Create the main window
 root = tk.Tk()
 root.title("League of Legends Champion Selector")
-root.geometry("600x600")  # Set the size of the window
+root.geometry("1000x800")  # Set the size of the window
 
-# Create a frame for better organization
+# Create a frame for the champion images
 frame = tk.Frame(root)
 frame.pack(pady=20)
 
-# Create a dropdown menu
-champion_combo = ttk.Combobox(frame, values=champion_names, font=("Arial", 12), width=30)
-champion_combo.set("Select a Champion")  # Default text
-champion_combo.bind("<<ComboboxSelected>>", show_champion_details)
-champion_combo.pack(pady=10)
+# Load and display champion images
+for index, champion in enumerate(champions_data.values()):
+    image_filename = champion['image']['full']
+    image_path = os.path.join('champion_images', image_filename)
+
+    if os.path.exists(image_path):
+        image_data = Image.open(image_path)
+        image_data = image_data.resize((100, 100), Image.ANTIALIAS)  # Resize for uniformity
+        image = ImageTk.PhotoImage(image_data)
+
+        # Create a button with the champion image
+        button = tk.Button(frame, image=image, command=lambda name=champion['name']: show_champion_details(name))
+        button.image = image  # Keep a reference
+
+        # Calculate row and column for grid layout
+        row = index // num_columns
+        column = index % num_columns
+        button.grid(row=row, column=column, padx=5, pady=5)  # Adjust grid layout
 
 # Create a label to show champion details
-details_label = tk.Label(frame, text="", justify=tk.LEFT, font=("Arial", 12))
+details_label = tk.Label(root, text="", justify=tk.LEFT, font=("Arial", 12))
 details_label.pack(pady=10)
 
-# Create an image label
-image_label = tk.Label(frame)
+# Create an image label for displaying the selected champion's larger image
+image_label = tk.Label(root)
 image_label.pack(pady=10)
 
 # Run the application
