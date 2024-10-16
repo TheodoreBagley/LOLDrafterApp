@@ -1,14 +1,13 @@
-import requests
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import io
+import os
 import json
 
 with open('champions_data.json', 'r') as f:
-    champions_data = json.load(f)
+    champions_data = json.load(f)['data']
 
-champion_names = [champion['name'] for champion in champions_data['data'].values()]
+champion_names = [champion['name'] for champion in champions_data.values()]
 
 def show_champion_details(event):
     selected_champion = champion_combo.get()
@@ -16,20 +15,21 @@ def show_champion_details(event):
     if champion_info:
         details_label.config(text=f"Name: {champion_info['name']}\nTags: {', '.join(champion_info['tags'])}\nTitle: {champion_info['title']}")
         
-        # Load and display champion image
-        image_url = f"https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/{champion_info['image']['full']}"
-        image_response = requests.get(image_url)
+        image_filename = champion_info['image']['full']
+        image_path = os.path.join('champion_images', image_filename)
         
-        if image_response.status_code == 200:
-            # Open the image
-            image_data = Image.open(io.BytesIO(image_response.content))
-            image = ImageTk.PhotoImage(image_data)
-            
-            # Update the image label
-            image_label.config(image=image)
-            image_label.image = image  # Keep a reference to avoid garbage collection
+        if os.path.exists(image_path):
+            # If image exists in cache, load it
+            image_data = Image.open(image_path)
         else:
-            print(f"Error fetching image: {image_response.status_code} - {image_response.text}")
+            print(f"Image not found in cache: {image_path}")
+            return  # Exit if the image could not be found
+
+        # Update the image label
+        image = ImageTk.PhotoImage(image_data)
+        image_label.config(image=image)
+        image_label.image = image
+
 
 # Create the main window
 root = tk.Tk()
