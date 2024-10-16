@@ -43,4 +43,4 @@ for champ in champs_list:
         data = response = requests.get(url)
         soupy = BeautifulSoup(data.content, 'html.parser')
         para = soupy.find('div', attrs={'q:key': 'yJ_1'})
-        print(para)
+        print(para)      
