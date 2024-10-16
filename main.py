@@ -1,15 +1,20 @@
+import json
 import re
-
 import requests
 from bs4 import BeautifulSoup
+from peewee import *
 
 class Champion:
-    def __init__(self, name: str, lanes: list):
+    def __init__(self, name: str, lanes: list, winrate: dict):
         self.name = name
         self.lanes = lanes
+        self.winrate = winrate
 
     def __repr__(self):
-        return f"Champion(name='{self.name}', lanes={self.lanes})"
+        return f"Champion(name='{self.name}', lanes={self.lanes}, winrate={self.winrate})"
+
+    def update_winrate(self, enemy: str, rate: float):
+        self.winrate[enemy] = rate
 
 
 champs_list = []
@@ -39,7 +44,7 @@ if response.status_code == 200:
             #champs_list.append(champion_id.strip())
         champion_lanes = div.get('data-lanes')
         lanes = re.findall(r'jungle|top|mid|adc|support', champion_lanes)
-        champs_list.append(Champion(champion_name, lanes))
+        champs_list.append(Champion(champion_name, lanes, {}))
     for champ in champs_list:
         print(champ)
     #print(champs_list)
@@ -48,35 +53,59 @@ else:
 
 
 
-
-# TODO: https://www.counterstats.net/league-of-legends/
-
-
 for champ in champs_list:
     for enemy in champs_list:
+        #only look at champs in same role
         if enemy.lanes[0] == champ.lanes[0]:
             new_url =  'https://www.counterstats.net/league-of-legends/' + champ.name + '/vs-' + enemy.name + '/' + champ.lanes[0] + '/all'
         else:
             continue
-        #print(new_url)
-        response = requests.get(new_url)
+        #don't compare champs to themself
+        if champ.name == enemy.name:
+            continue
 
+        response = requests.get(new_url)
         if response.status_code == 200:
-            print(new_url)
+            #print(new_url)
             soup = BeautifulSoup(response.content, 'html.parser')
-            with open('output.txt', 'w', encoding='utf-8') as file:
-                file.write(new_url)
 
             span_elements = soup.find_all('span', attrs={'data-perc': True})
-            print(span_elements)
+            #print(span_elements)
+            #get the winrate element
             if span_elements:
                 span_element = span_elements[6]
             else:
                 continue
             if span_element:
                 data_perc = span_element['data-perc']
-                print(data_perc)
+                champ.update_winrate(enemy.name, data_perc)
+                #print(data_perc)
             else:
+                pass
+                #print("Element not found")
 
-                print("Element not found")
+for champ in champs_list:
+    print(champ)
 
+
+db = SqliteDatabase('champions.db')
+
+class Champions(Model):
+    name = CharField(unique=True)
+    lanes = TextField()
+    winrate = TextField()
+
+    class Meta:
+        database = db
+
+
+db.connect()
+db.create_tables([Champions])
+for champ in champs_list:
+    champion_data = {
+        'name': champ.name,
+        'lanes': champ.lanes,
+        'winrate': json.dumps(champ.winrate)
+    }
+    Champions.create(**champion_data)
+    print(champ.name + "added")
