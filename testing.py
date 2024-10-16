@@ -21,16 +21,16 @@ def fetch_champion_data():
     with open(file_path, 'w') as f:
         json.dump(champions_data, f)
 
-    return champions_data
+    return champions_data['data']
 
 def get_champion_names(champ_data):
-    return [champion['name'] for champion in champ_data['data'].values()]
+    return [champion['name'] for champion in champ_data.values()]
 
 def group_champs_by_tag(champ_data):
     champions_by_tags = defaultdict(list)
 
     # Group champions by their tags
-    for champion in champ_data['data'].values():
+    for champion in champ_data.values():
         for tag in champion['tags']:
             champions_by_tags[tag].append(champion['name'])
 
@@ -45,7 +45,7 @@ def group_champs_by_tag(champ_data):
 if os.path.exists(file_path):
     # Load data from the file
     with open(file_path, 'r') as f:
-        champions_data = json.load(f)
+        champions_data = json.load(f)['data']
 else:
     # Fetch data from API and store it locally
     champions_data = fetch_champion_data()
