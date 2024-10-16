@@ -2,6 +2,8 @@ import requests
 import json
 import os
 from collections import defaultdict
+from PIL import Image
+
 
 # File path to store the champion data
 file_path = "champions_data.json"
@@ -56,6 +58,18 @@ champion_names = get_champion_names(champions_data)
 
 #print(champion_names)  # Print the list of champion names
 
+def get_champion_images(champ_data):
+    cache_dir = "champion_images"
+    os.makedirs(cache_dir, exist_ok=True)
+
+    for champ in champ_data.values():
+        image_filename = champ['image']['full']
+        image_path = os.path.join(cache_dir, image_filename)
+        image_url = f"https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/{champ['image']['full']}"
+        image_response = requests.get(image_url)
+        with open(image_path, 'wb') as img_file:
+            img_file.write(image_response.content)
+    
 
 
 
