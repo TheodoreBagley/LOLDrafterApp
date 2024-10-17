@@ -5,13 +5,14 @@ from bs4 import BeautifulSoup
 from peewee import *
 
 class Champion:
-    def __init__(self, name: str, lanes: list, winrate: dict):
+    def __init__(self, name: str, winPercent: float, lanes: list, winrate: dict):
         self.name = name
+        self.winPercent = winPercent
         self.lanes = lanes
         self.winrate = winrate
 
     def __repr__(self):
-        return f"Champion(name='{self.name}', lanes={self.lanes}, winrate={self.winrate})"
+        return f"Champion(name='{self.name}', winPercent='{self.winPercent}', lanes={self.lanes}, winrate={self.winrate})"
 
     def update_winrate(self, enemy: str, rate: float):
         self.winrate[enemy] = rate
@@ -33,6 +34,7 @@ if response.status_code == 200:
     #champs_list = []
 
     for div in champion_divs:
+        #get champ names
         champion_name = div.get('id')
         if champion_name:
             #print(champion_id)
@@ -41,10 +43,14 @@ if response.status_code == 200:
                 print(champion_id)
             if "nunu" in champion_name:
                 champion_id = "nunu"
-            #champs_list.append(champion_id.strip())
+
+        #get champ lanes
         champion_lanes = div.get('data-lanes')
         lanes = re.findall(r'jungle|top|mid|adc|support', champion_lanes)
-        champs_list.append(Champion(champion_name, lanes, {}))
+
+        #get overall win rate
+        champion_wins = float(div.get('data-winrate'))
+        champs_list.append(Champion(champion_name, champion_wins, lanes, {}))
     for champ in champs_list:
         print(champ)
     #print(champs_list)
@@ -79,7 +85,7 @@ for champ in champs_list:
             if span_element:
                 data_perc = span_element['data-perc']
                 champ.update_winrate(enemy.name, data_perc)
-                #print(data_perc)
+                print(data_perc)
             else:
                 pass
                 #print("Element not found")
@@ -92,6 +98,7 @@ db = SqliteDatabase('champions.db')
 
 class Champions(Model):
     name = CharField(unique=True)
+    totalWinRate = FloatField()
     lanes = TextField()
     winrate = TextField()
 
@@ -104,8 +111,9 @@ db.create_tables([Champions])
 for champ in champs_list:
     champion_data = {
         'name': champ.name,
+        'totalWinRate': champ.winPercent,
         'lanes': champ.lanes,
         'winrate': json.dumps(champ.winrate)
     }
     Champions.create(**champion_data)
-    print(champ.name + "added")
+    print(champ.name + " added")
