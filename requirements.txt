@@ -1,2 +1,9 @@
 requests
 Pillow
+Django
+pipenv
+
+WHENEVER YOU RUN THE DJANGO SERVER YOU MUST START A pipenv VIRTUAL ENVIROMENT SHELL:
+in terminal run: pipenv install --ignore-pipfile
+then run: pipenv shell
+THIS WILL RECREATE THE ORIGINAL VIRTUAL ENVIROMENT, IGNORING ANY CONFLICTING VERSIONS OF PYTHON, DJANGO, ETC.
