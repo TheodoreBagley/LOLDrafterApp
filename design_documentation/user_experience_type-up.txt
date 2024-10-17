@@ -1,0 +1,27 @@
+WHEN THE USER OPENS THE WEB APPLICATION THEY WILL SEE 2 OVERLAYS ON THE BROWSER WINDOW. 
+
+THE FIRST OVERLAY WILL LOOK SIMILAR TO DRAFTLOL (https://draftlol.dawe.gg/RKVumKYO/ZGPf2lOw FOR REFERENCE). THERE WILL BE AN INDICATOR FOR EACH TEAM (RED AND BLUE), ALL OF THE CHAMPION PNGS, SEARCH BAR, AND 2 SELECTIONS SECTIONS (ONE FOR BANS, ONE FOR SELECTIONS), THIS WILL TAKE UP 75% OF THE WINDOW
+
+THE SECOND OVERLAY WILL BE A SIMPLE COMMAND LINE INTERFACE, WHERE USERS CAN ENTER SIMPLE COMMANDS AND IT WILL RETURN REQUESTED DATA. THIS WILL TAKE UP 25% OF THE WINDOW
+
+AT THE TOP OF THE WINDOW THERE WILL BE A DROPDOWN FOR USERS TO HAVE ACCESS TO ALL COMMANDS AND READ WHAT THEY DO
+
+COMMAND IDEAS:
+key: {champion_name} - this is an abstract variable that will be represents all possible champions in the game. when running a command it will be replaced with the desired champion's name by the user and be followed by the desired command
+
+{champion_name}_pair: outputs all champions that have 50% or higher win rate when on the same team as the specified champion
+
+{champion_name}_counter: outputs all champions with a 50% or higher win rate against the specified champion
+
+{champion_name}_beats: outputs all champions with a 50% or lower win rate against the specified champion
+
+{champion_name}_winrates: outputs all relevant champion win rates against the specified champion
+
+team_pair: outputs all champions that have 50% or higher win rate when paired with champions on the user's team
+
+enemy_pair: outputs all champions that have 50% or higher win rate when paired with champions on the enemy's team
+
+team_counter: outputs all champions that have a 50% or higher winrate against champions on the user's team
+
+enemy_counter: outputs all champions that have a 50% or higher winrate against champions on the enemy's team
+
